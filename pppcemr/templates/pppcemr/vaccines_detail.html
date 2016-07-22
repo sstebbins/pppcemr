@@ -1,0 +1,112 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+  <h2> {{ patient }} </h2>
+  <h2><small> {{ patient.birthdate | timesince }} old</small></h2>
+</div>
+
+<h2>Vaccines</h2>
+
+<h3>DTaP and TDaP</h3>
+<ul>
+{% for vaccine in dtap_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Hepatitis A</h3>
+<ul>
+{% for vaccine in hepa_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Hepatitis B</h3>
+<ul>
+{% for vaccine in hepb_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+
+<h3>Hib</h3>
+<ul>
+{% for vaccine in hib_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>HPV</h3>
+<ul>
+{% for vaccine in hpv_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Influenza</h3>
+<ul>
+{% for vaccine in flu_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Meningitis (MCV)</h3>
+<ul>
+{% for vaccine in mcv_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Meningitis B</h3>
+<ul>
+{% for vaccine in menb_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>MMR</h3>
+<ul>
+{% for vaccine in mmr_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Pneumococcal Conjugate (PCV)</h3>
+<ul>
+{% for vaccine in pcv_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Pneumococcal Polysaccharide (PCV)</h3>
+<ul>
+{% for vaccine in ppsv_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Polio (IPV)</h3>
+<ul>
+{% for vaccine in polio_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Rotavirus (RV)</h3>
+<ul>
+{% for vaccine in rv_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+<h3>Varicella (VAR)</h3>
+<ul>
+{% for vaccine in var_list.all %}
+    <li>{{vaccine}}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

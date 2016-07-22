@@ -1,0 +1,62 @@
+{% extends "pppcemr/base.html" %}
+{% load pppcemr_tags %}
+
+
+{% block content %}
+<ol class="breadcrumb">
+	<li><a href="{% url 'encounter_detail' task.encounter.id %}">{{task.encounter | truncatewords:5}}</a></li>
+	{% if task.treatment.assessment %}
+		<li><a href="{% url 'encounter_assessment_detail' task.encounter.id task.treatment.assessment.id %}">{{ task.treatment.assessment.diagnosis | truncatewords:5 }}</a></li>
+		<li class="active"><a href="{% url 'treatment_detail' task.encounter.id task.treatment.assessment.id task.treatment.id %}">{{ task.treatment.description | truncatewords:5 }}</a></li>
+	{% endif %}
+	{% if task.treatment %}
+		<li class="active"><a href="{% url 'encounter_treatment_detail' task.encounter.id task.treatment.id %}">{{ task.treatment.description | truncatewords:5 }}</a></li>
+	{% endif %}
+</ol>
+<div class="page-header">
+<h2> Task: {{task.subject}} </h2>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+    	<h3 class="panel-title">Details</h3>
+	</div>
+	<div class="panel-body">
+    	Message Body: {{task.body}}
+  	</div>
+  	<div class="list-group">
+  	{% if task.treatment %}
+		{% if task.treatment.has_no_assessment %}
+			<a href="{%url 'encounter_treatment_detail' task.treatment.encounter.id task.treatment.id %}" class="list-group-item">
+		{% else %}
+			<a href="{%url 'treatment_detail' task.treatment.encounter.id task.treatment.assessments.last.id task.treatment.id %}" class="list-group-item">
+		{% endif %}
+		Treatment: {{task.treatment}}</a>
+	{% endif %}
+	{% if task.encounter %} 
+		<a href="{%url 'encounter_detail' task.encounter.id %}" class="list-group-item">Encounter Created: {{task.encounter}}</a>
+	{% endif %}
+	{% if task.owner %}<a href="#" class="list-group-item">Task Owner: {{task.owner}}</a>{% endif %}
+	{% if task.owner_group %}<a href="#" class="list-group-item">Task Owner Group: {{task.owner_group}}</a>{% endif %}
+	{% if task.sender %}<a href="#" class="list-group-item">Task Sender: {{task.sender}}</a>{% endif %}
+	</div>
+	<div class="panel-footer">
+	{% if task.is_open %}
+		Task is open.
+	{% else %}
+		Task is closed.
+	{% endif %}
+	</div>
+</div>
+
+{% endblock %}
+{% block admin %}
+{{ block.super }}
+<li><a href="{% url 'edit_task' task.pk %}"><span class="glyphicon glyphicon-pencil"></span> Edit Task</a></li>
+{# <li><a href="{{request.session.breadcrumb_history}}"> <span class="glyphicon glyphicon-arrow-left"></span> Go Back</a></li> #}
+{% if task.is_open %}
+	<li><a href="{% url 'close_task' task.id%}"><span class="glyphicon glyphicon-remove"></span> Close Task</a></li>
+{% else %}
+	<li><a href="{% url 'reopen_task' task.id%}"><span class="glyphicon glyphicon-repeat"></span> Reopen Task</a></li>
+{% endif %}
+{% endblock %}

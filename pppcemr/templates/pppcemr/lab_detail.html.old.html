@@ -1,0 +1,32 @@
+{% extends "pppcemr/base.html" %}
+{% block sidebar %}
+{% for location in offices %}
+			<li><a href="{% url 'office_detail' location.id %}">{{ location.name }}</a></li>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+
+<h1> {{ lab.lab_type }} </h1>
+</br>
+
+Assessment Created: {{lab.assessment}}
+</br>
+Assessment Created ID: {{lab.assessment.id}} </br>
+Encounter Created: {{lab.encounter}} </br>
+Encounter Created ID: {{lab.encounter.id}} </br>
+lab open: {{ lab.is_open }}</br>
+
+<h2> Results: </h2>
+{{lab.result}}
+
+{% if current_assessment_id %}
+	<p><a href="{% url 'edit_lab' current_encounter_id current_assessment_id lab.id%}" class="btn btn-primary" role="button"> Edit Lab </a></p>
+	<p><a href="{% url 'close_treatment' current_encounter_id current_assessment_id lab.id%}" class="btn btn-warning" role="button"> Close Lab </a></p>
+	<p><a href="{% url 'encounter_assessment_detail' current_encounter_id current_assessment_id %}" class="btn btn-primary" role="button"> Back To Current Assessment </a> </p>
+{% else %}
+	<p><a href="{% url 'edit_encounter_lab' current_encounter_id lab.id%}" class="btn btn-primary" role="button"> Edit lab </a></p>
+	<p><a href="{% url 'close_encounter_treatment' current_encounter_id lab.id%}" class="btn btn-warning" role="button"> Close lab </a></p>
+{% endif %}
+<p><a href="{% url 'encounter_detail' current_encounter_id %}" class="btn btn-primary" role="button"> Back To Current Encounter </a> </p>
+{% endblock %}

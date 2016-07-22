@@ -1,0 +1,20 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+<h1>Edit Encounter</h1>
+
+
+
+<form action="" method="post">
+	{% csrf_token %}
+	<div class="ui-widget">
+  		<label for="id_patient">Patient: </label>
+  		<input id="id_patient" name="patient">
+        <input id="patient_pk" type="hidden" name="patient_pk">
+	</div>
+	{{ form.as_p}}
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+{% endblock %}

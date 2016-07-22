@@ -1,0 +1,123 @@
+{% extends "pppcemr/base.html" %}
+
+{% block extrajs %}
+
+<script type="text/javascript">
+$(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'line',
+            zoomType: 'x'
+        },
+        title: {
+            text: 'Weight for Age: {{patient}}'
+        },
+        subtitle: {
+                text: document.ontouchstart === undefined ?
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+        },
+        xAxis: {
+            title: {
+                text: 'Age (y)'
+            }
+        },
+        yAxis: {
+            title: {
+                text: '{{ylabel}}'
+            }
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:.2f}y: {point.y:.2f} {{ylabel}}'
+        },
+
+        series: [{
+            name: '3%',
+            data: {{third_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '5%',
+            data: {{fifth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '10%',
+            data: {{tenth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '25%',
+            data: {{twenty_fifth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '50%',
+            data: {{fiftieth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '75%',
+            data: {{seventy_fifth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '90%',
+            data: {{ninetieth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '95%',
+            data: {{ninety_fifth_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: '97%',
+            data: {{ninety_seventh_percentile}},
+            lineWidth: 1,
+            marker: {
+                    enabled: false
+                }
+        }, {
+            name: 'Patient Weight',
+            data: {{weights}},
+            lineWidth: 5,
+            marker: {
+                    enabled: true,
+                    symbol:'circle'
+                }
+        }]
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+
+<ul class="nav nav-tabs">
+  <li role="presentation" class="active"><a href="#">Weight for Age</a></li>
+  <li role="presentation"><a href="{% url 'patient_growthchart_height' patient.id %}">Height for Age</a></li>
+  <li role="presentation" class="disabled"><a href="#">HC for Age</a></li>
+  <li role="presentation" class="disabled"><a href="#">Length for Weight</a></li>
+  <li role="presentation"><a href="{% url 'patient_growthchart_bmi' patient.id %}">BMI for Age</a></li>
+</ul>
+<div id="container" style="min-width: 310px; height: 600px; margin: 0 auto"></div>
+Note: WHO growth data is used for ages <2y old, CDC growth data for ages > 2y.
+{% endblock %}

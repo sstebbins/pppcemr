@@ -1,0 +1,19 @@
+{% extends "pppcemr/base.html" %}
+{% block sidebar %}
+{% for location in offices %}
+			<li {% if encounter.room.office.id = location.id %} class = "active" {% endif %}><a href="{% url 'office_detail' location.id %}">{{ location.name }}</a></li>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+<h1>Reopen Encounter</h1>
+
+Click "Save" to reopen the encounter.
+
+<form method="POST" class="post-form">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+{% endblock %}

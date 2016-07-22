@@ -1,0 +1,61 @@
+{% extends "pppcemr/base.html" %}
+
+{% block extrajs %}
+<script type="text/javascript">
+{% for textbutton in saved_text_responses.all %}
+$(function () {
+    $('#button{{textbutton.id}}').on('click', function () {
+        var text = $('#id_results');
+        var btn = $('#button{{textbutton.id}}');
+        text.val(text.val() + btn.val() + " ");
+    });
+});
+{% endfor %}
+</script>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="page-header">
+	<h1>{{treatment.patient}}</h1>
+	{% for object in treatment.patient.get_all_open_allergies.all %}
+	{% if forloop.first %}
+		<div class="alert alert-danger">
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<strong>Allergies:</strong>
+	{% endif %}
+			<a href="{% url 'encounter_treatment_detail' treatment.encounter.id object.id %}"><span class="label label-danger">{{ object }}</span></a>
+			{% if forloop.last %}
+			</div>
+	{% endif %}
+			{% empty %}
+		<div class="alert alert-success">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<strong>NKDA</strong>
+		</div>
+	{% endfor %}
+</div>
+<h2>{{treatment.treatment_option}}</h2>
+<form method="POST" class="post-form">
+	{% csrf_token %}
+		<table class="table-condensed">
+		{% if treatment.treatment_option.is_physical %}
+			<tr><th><label for="id_standard_PE_results">Standard PE Results: </label></th><td><input id="id_standard_PE_results" name="treatment_option"></td></tr>
+		{% endif %}
+		{{ form.as_table }}
+		</table>
+
+	<input type="hidden" name="next_page" value="{{ request.META.HTTP_REFERER }}" />
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+
+{% for textbutton in saved_text_responses.all %}
+{% if forloop.first %}
+<h3>Default results:</h3>
+{% endif %}
+<input type="button" class="btn btn-default" value="{{textbutton}}" id="button{{textbutton.id}}" /></br>
+{% endfor %}
+
+{% endblock %}

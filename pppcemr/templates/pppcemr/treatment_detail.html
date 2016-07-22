@@ -1,0 +1,91 @@
+{% extends "pppcemr/base.html" %}
+
+{% block content %}
+{% if current_encounter.patient.pk = treatment.patient.pk %}
+<ol class="breadcrumb">
+	<li><a href="{% url 'encounter_detail' current_encounter_id %}">{{treatment.encounter | truncatewords:5}}</a></li>
+	{% if current_assessment %}<li><a href="{% url 'encounter_assessment_detail' current_encounter_id current_assessment.id %}">{{ current_assessment.diagnosis | truncatewords:5 }}</a></li>{% endif %}
+	<li class="active"><a href="#">{{ treatment.description | truncatewords:5 }}</a></li>
+</ol>
+<h3>{{ treatment | linebreaksbr}}</h3>
+
+<div class="well">
+Date: {{ treatment.date }}</br>
+{% for assessment in treatment.assessments.all %}
+	{% if forloop.first %}
+	Assessments Associated:</br>
+	{% endif %}
+	{{assessment}}</br>
+{% endfor %}
+Last assessment: {{treatment.assessments.last}}</br>
+{% if current_assessment %} Current Assessment: {{current_assessment}}</br> {% endif %}
+Encounter Created: {{treatment.encounter}} </br>
+Current Encounter: {{current_encounter}}</br>
+{% if treatment.is_open %}
+	Treatment is open.
+{% else %}
+	Treatment is closed.
+{% endif %}
+</div>
+
+
+{% for task in treatment.task_set.all %}
+{% if forloop.first %}
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Tasks</h3>
+				</div>
+				<ul class="list-group">
+{% endif %}
+
+	<li class="list-group-item"><span><a href="{% url 'task_detail' task.id %}">{{ task }} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a><a href="{% url 'close_task' task.id%}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+
+	{% if forloop.last %}
+				</ul>
+			</div>
+		{% endif %}
+
+{% endfor %}
+
+{% for attachment in treatment.fileattachment_set.all %}
+	{% if forloop.first %}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Attachments</h3>
+			</div>
+			<ul class="list-group">
+	{% endif %}
+			<li class="list-group-item"><a href="{{ attachment.file_attachment.url }}">{{attachment}}</a></li>
+{% if forloop.last %}
+			</ul>
+		</div>
+		{% endif %}
+{% endfor %}
+
+{% else %}
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+  <span class="sr-only">Error:</span>
+  You are attempting to access a treatment that belongs to a different patient. This is usually caused by someone manually editing the page URL. Press the "back" button on your browser and try again.
+</div>
+{% endif %}
+
+{% endblock %}
+{% block admin %}
+{{ block.super }}
+{% if current_encounter.patient.pk = treatment.patient.pk %}
+	<li><a href="{{request.META.PATH_INFO}}edit_treatment"><span class="glyphicon glyphicon-pencil"></span> Edit Treatment</a></li>
+	<li><a href="{% url 'choose_treatment_report' treatment.id %}" target=_blank><span class="glyphicon glyphicon-list-alt"></span> Choose report</a></li>
+	{% if current_assessment_id %}
+		<li><a href="{% url 'new_treatment_task' current_encounter_id current_assessment_id treatment.id %}"><span class="glyphicon glyphicon-plus"></span> New Task</a></li>
+		<li><a href="{% url 'close_treatment' current_encounter_id current_assessment_id treatment.id%}"><span class="glyphicon glyphicon-remove"></span> Close Treatment</a></li>
+		<li><a href="{% url 'send_assessment_treatment_message' current_encounter_id current_assessment_id treatment.id %}"><span class="glyphicon glyphicon-envelope"></span> Send Message</a></li>
+		<li><a href="{% url 'treatment_attach_file' current_encounter_id current_assessment_id treatment.id %}"><span class="glyphicon glyphicon-paperclip"></span> Attach File</a></li>
+	{% else %}
+		<li><a href="{% url 'new_encounter_treatment_task' current_encounter_id treatment.id %}"><span class="glyphicon glyphicon-plus"></span> New Task</a></li>
+		<li><a href="{% url 'close_encounter_treatment' current_encounter_id treatment.id%}"><span class="glyphicon glyphicon-remove"></span> Close Treatment</a></li>
+		<li><a href="{% url 'send_encounter_treatment_message' current_encounter_id treatment.id %}"><span class="glyphicon glyphicon-envelope"></span> Send Message</a></li>
+		<li><a href="{% url 'encounter_treatment_attach_file' current_encounter_id treatment.id %}"><span class="glyphicon glyphicon-paperclip"></span> Attach File</a></li>
+{% endif %}
+{% endif %}
+{% endblock %}

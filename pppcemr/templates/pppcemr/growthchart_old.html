@@ -1,0 +1,40 @@
+{% extends "pppcemr/base.html" %}
+
+{% block extrajs %}
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+    // weight chart
+     var WeightOptions = {
+        chart: {
+            renderTo: 'chart_panel',
+            type: 'line',
+            zoomType: 'x'
+        },
+        legend: {enabled: false},
+        title: {text: 'Weight by Age'},
+        subtitle: {text: '(Boys)'},
+        xAxis: {title: {text: 'Years'}, labels: {rotation: -45}},
+        yAxis: {title: {text: 'Lbs'}},
+        series: [{}],
+    };
+
+    var chartDataUrl = "{% url 'get_weights' patient.id %}";
+    $.getJSON(chartDataUrl,
+        function(data) {
+            WeightOptions.series[0].name = 'Weight (lb)';
+            WeightOptions.series[0].data = data;
+            var chart = new Highcharts.Chart(WeightOptions);
+    });
+
+} );
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default">
+	<div id="chart_panel" class="panel-body" style="width:100%;height:600px"></div>
+</div>
+{% endblock %}

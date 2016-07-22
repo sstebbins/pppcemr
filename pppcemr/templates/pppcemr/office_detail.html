@@ -1,0 +1,41 @@
+{% extends "pppcemr/base.html" %}
+
+{% block content %}
+
+{% for room in office.room_set.all %}
+	<div class="panel panel-default">
+  		<div class="panel-heading">
+    		<h3 class="panel-title"><a href="{% url 'room_detail' room.id %}">{{ room }}</a></h3>
+  		</div>
+  		
+  		{% for encounter in open_encounters %}
+  			{% if forloop.first %}
+  				<ul class="list-group">
+  			{% endif %}
+			{% if encounter.room.id = room.id %}
+    			<li class="list-group-item">
+    				<h4><a href="{% url 'encounter_detail' encounter.id %}" class="label label-primary" style="background-color:{{encounter.encounter_owner.employee.color}} !important;">{{encounter.encounter_type }} - {{ encounter.patient }} ({{encounter.encounter_owner}})</a></h4>
+    				{% for task in encounter.task_set.all %}
+    					{% if task.is_open %}
+							{% if task.treatment %}
+								{% if task.treatment.assessment %}
+									<a href="{% url 'edit_treatment' task.treatment.encounter.id task.treatment.assessment.id task.treatment.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{task}} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a>
+								{% else %}
+									<a href="{% url 'edit_encounter_treatment' task.treatment.encounter.id task.treatment.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{task}} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a>
+								{% endif %}
+							{% else %}
+								<a href="{% url 'task_detail' task.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{task}} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a>
+							{% endif %}
+							</br>
+						{% endif %}
+    				{% endfor %}
+    			</li>
+  			{% endif %}
+  			{% if forloop.last %}
+  				</ul>
+  			{% endif %}
+		{% endfor %}
+	</div>
+
+{% endfor %}
+{% endblock %}

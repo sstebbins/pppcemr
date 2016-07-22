@@ -1,0 +1,18 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+
+<h1>Edit Treatment: {{treatment.treatment_option.name}}</h1>
+
+<form method="POST" class="post-form">
+	{% csrf_token %}
+	<table class="table">
+	{{ form.as_table }}
+	</table>
+	<input type="hidden" name="next_page" value="{{ request.META.HTTP_REFERER }}" />
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+
+{% endblock %}

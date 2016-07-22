@@ -1,0 +1,25 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+<h1>Change Snomed</h1>
+
+<p>Assessment: {{assessment}}</p>
+<p>Current Snomed: {{assessment.snomed}}</p>
+<p>Current default Snomed: {{assessment.diagnosis.default_snomed}}</p>
+
+<form action="" method="post">
+	{% csrf_token %}
+	<div class="ui-widget">
+  		<label for="id_snomed">Snomed: </label>
+  		<input id="id_snomed" name="snomed">
+        <input id="snomed_pk" type="hidden" name="snomed_pk">
+	</div>
+	<div>
+		<label for="id_set_default">Set default for diagnosis:</label>
+		<input id="id_set_default" name="set_default" type="checkbox">
+	</div>
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+{% endblock %}

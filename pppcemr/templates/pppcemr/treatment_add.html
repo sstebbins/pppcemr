@@ -1,0 +1,36 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+<div class="page-header">
+	<h1>{{encounter.patient}}</h1>
+	{% for object in encounter.patient.get_all_open_allergies.all %}
+	{% if forloop.first %}
+		<div class="alert alert-danger">
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<strong>Allergies:</strong>
+	{% endif %}
+			<a href="{% url 'encounter_treatment_detail' encounter.id object.id %}"><span class="label label-danger">{{ object }}</span></a>
+			{% if forloop.last %}
+			</div>
+	{% endif %}
+			{% empty %}
+		<div class="alert alert-success">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<strong>NKDA</strong>
+		</div>
+	{% endfor %}
+</div>
+
+
+
+
+<form action="" method="post">
+	{% csrf_token %}
+		<label for="id_treatment_option" class="control-label">Search for Treatment: </label>
+		<input id="id_treatment_option" name="treatment_option" class="form-control">
+		<input id="treatment_option_pk" type="hidden" name="treatment_option_pk">
+		<button type="submit" class="save btn btn-default">Save</button>
+		<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+{% endblock %}

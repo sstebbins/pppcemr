@@ -1,0 +1,19 @@
+.sidebar {
+	float:left;
+	width:150px;
+}
+
+@media (max-width: 1000px) {
+    .affix {
+    position: static;
+    }
+}
+
+@media print {
+    .nav {
+    display:none;
+    }
+    a[href]:after {
+    content:none ;
+    }
+}

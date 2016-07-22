@@ -1,0 +1,56 @@
+{% load staticfiles %}
+{% load pppcemr_tags %}
+<html>
+    <head>
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+        <title> PPPC EMR </title>
+		<link rel="stylesheet" href="{% static 'js/jquery-ui-1.11.4.custom/jquery-ui.css' %}" type="text/css" media="all" />
+		<script src="{% static 'js/jquery-1.12.1.min.js' %}"></script>
+		<script src="{% static 'js/jquery-ui-1.11.4.custom/jquery-ui.min.js' %}" type="text/javascript"></script>
+		<link href="{% static 'bootstrap-3.3.6-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+		<link rel="stylesheet" href="{% static 'bootstrap-3.3.6-dist/css/bootstrap-theme.min.css' %}">
+		<script src="{% static 'bootstrap-3.3.6-dist/js/bootstrap.min.js' %}"></script>
+		<link rel="stylesheet" href="{% static 'css/pppcemr.css' %}">
+		<script src="{% static 'js/autocompletes.js' %}"></script>
+		<script src="{% static 'js/highcharts/js/highcharts.js' %}"></script>
+		<script src="{% static 'js/highcharts/js/modules/exporting.js' %}"></script>
+{% block extrajs %}{% endblock %}
+	</head>
+<body>
+
+
+<div class="container">
+	<div class="row">
+		</br>
+		<div class = "col-md-2">
+			<ul class= "nav nav-pills nav-stacked" data-spy="affix">
+				{% block sidebar %}
+					{% for location in offices %}
+						<li><a href="{% url 'office_detail' location.id %}">{{ location.name }} <span class="badge">{% get_user_task_count location request.user %}</span></a></li>
+					{% endfor %}
+					<li><a href="{% url 'lookup_patient' %}">Patients</a></li>
+					<li><a href="{% url 'task_list' %}">Tasks <span class="badge">{{request.user.employee.get_open_tasks.count}}</span></a></li>
+					<li><a href="{% url 'message_list' %}">Messages <span class="badge">{{request.user.employee.get_open_messages.count}}</span></a></li>
+				{% endblock %}
+			</ul>
+		</div>
+    	<div class = "col-md-8" id="content">
+			{% if messages %}
+				{% for message in messages %}
+					<div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{ message }}</div>
+				{% endfor %}
+			{% endif %}
+        	{% block content %}{% endblock %}
+        </div>
+        <div class = "col-md-2">
+        	<ul class= "nav nav-pills nav-stacked" data-spy="affix">
+        		{% block admin %}
+        			<li><a href="#"><span class="glyphicon glyphicon-user"></span> User: {{user.username}}</a></li>
+        			<li><a href="/admin/" target="_blank"><span class="glyphicon glyphicon-wrench"></span> Admin/Config</a></li>
+        			<li><a href="/accounts/logout"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+        		{% endblock %}
+        	</ul>
+        </div>
+    </div>
+</div>
+</body>

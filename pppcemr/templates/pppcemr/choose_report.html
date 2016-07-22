@@ -1,0 +1,20 @@
+{% extends "pppcemr/base.html" %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+<h1>Choose Report</h1>
+
+
+<form method="POST" class="post-form">
+	{% csrf_token %}
+	<table class="table">
+	{{ form.as_table }}
+	</table>
+	<button type="submit" class="save btn btn-default">Save</button>
+</form>
+{% endblock %}
+
+{% block admin %}
+{% endblock %}

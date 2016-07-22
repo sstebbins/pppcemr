@@ -1,0 +1,15 @@
+{% extends "pppcemr/base.html" %}
+
+{% block content %}
+<h1>Attach File</h1>
+
+to Treatment: {{treatment}}
+<form method="POST" class="post-form" enctype="multipart/form-data">
+	{% csrf_token %}
+	<table class="table">
+	{{ form.as_table }}
+	</table>
+	<button type="submit" class="save btn btn-default">Save</button>
+	<button onclick="javascript: history.go(-1)" class="save btn btn-default">Cancel</button>
+</form>
+{% endblock %}

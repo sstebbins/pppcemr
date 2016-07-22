@@ -1,0 +1,61 @@
+{% extends "pppcemr/base.html" %}
+{% load pppcemr_tags %}
+
+
+{% block content %}
+
+<div class="page-header">
+<h2> Message: </h2>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+    	<h3 class="panel-title">Subject: {{ message.subject }}</h3>
+
+	</div>
+	<ul class="list-group">
+		<li class="list-group-item">
+			Message Sender: {{user}} ({{user.get_full_name}})
+		</li>
+		<li class="list-group-item">Message Recipients:
+		{% if message.recipient_users_list %}{% for user in message.recipient_users_list.all %} {{user}} ({{user.get_full_name}}), {%endfor%}{% endif %}
+		{% if message.recipient_groups_list %}{% for group in message.recipient_groups_list.all %} {{group}} group, {%endfor%}{% endif %}
+		</li>
+	</ul>
+	<div class="panel-body">
+    	{{message.body | linebreaksbr}}
+  	</div>
+  	<div class="list-group">
+  	{% if message.treatment %}
+		{% if message.assessment %}
+			<a href="{%url 'treatment_detail' message.treatment.encounter.id message.assessment.id message.treatment.id %}" class="list-group-item">
+		{% else %}
+			<a href="{%url 'encounter_treatment_detail' message.treatment.encounter.id message.treatment.id %}" class="list-group-item">
+		{% endif %}
+		Treatment: {{message.treatment}}</a>
+	{% endif %}
+	{% if message.assessment %}
+		<a href="{% url 'encounter_assessment_detail' message.encounter.id message.assessment.id %}" class="list-group-item">Assessment: {{message.assessment}}</a>
+	{% endif %}
+	{% if message.encounter %} 
+		<a href="{%url 'encounter_detail' message.encounter.id %}" class="list-group-item">Encounter: {{message.encounter}}</a>
+	{% endif %}
+	</div>
+	<div class="panel-footer">
+		{% if message.is_open %}
+			Message is open / unread.
+		{% else %}
+			Message is closed / read.
+		{% endif %}
+	</div>
+</div>
+
+{% if message.is_open %}
+	<a href="{% url 'close_message' message.id%}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-remove"></span> Close Message</a>
+{% else %}
+	<a href="{% url 'reopen_message' message.id%}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-repeat"></span> Reopen Message</a>
+{% endif %}
+<a href="{% url 'reply_message' message.id%}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-arrow-left"></span> Reply</a>
+<a href="{% url 'forward_message' message.id%}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-arrow-right"></span> Forward</a>
+
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "pppcemr/base.html" %}
+{% block sidebar %}
+{% for location in offices %}
+			<li><a href="{% url 'office_detail' location.id %}">{{ location.name }}</a></li>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+	<li><a href="{% url 'encounter_detail' current_encounter_id %}">{{note.encounter.patient | truncatewords:5}}</a></li>
+	{% if current_assessment_id %}<li><a href="{% url 'encounter_assessment_detail' current_encounter_id current_assessment_id %}">{{ note.assessment.diagnosis | truncatewords:5 }}</a></li>{% endif %}
+	<li class="active"><a href="#">{{ note | truncatewords:5 }}</a></li>
+</ol>
+<h1> Note </h1>
+<h4>{{ note }}</h4>
+</br>
+
+Assessment Created: {{note.assessment}}
+</br>
+Assessment Created ID: {{note.assessment.id}} </br>
+Encounter Created: {{note.encounter}} </br>
+Encounter Created ID: {{note.encounter.id}} </br>
+Note open: {{ note.is_open }}</br>
+Relative URL: {{note.get_relative_url}}
+Complete URL: pppcemr/encounter/{{current_encounter_id}}/{{note.get_relative_url}}
+
+{{request.META}}
+<h3> Tasks: </h3>
+{% for task in note.task_set.all %}
+	{% if forloop.first %}
+  		<ul class="list-group">
+  	{% endif %}
+	<li class="list-group-item">{{ task }}</li>
+	{% if forloop.last %}
+  		</ul>
+	{% endif %}
+{% endfor %}
+
+{% endblock %}
+
+{% block admin %}
+{{ block.super }}
+{% if note.next_page %}
+	<li><a href="{{note.next_page}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a></li>
+{% endif %}
+{% if current_assessment_id %}
+	<li><a href="{% url 'edit_note' current_encounter_id current_assessment_id note.id%}"><span class="glyphicon glyphicon-pencil"></span> Edit Note </a></li>
+	<li><a href="{% url 'close_treatment' current_encounter_id current_assessment_id note.id%}"><span class="glyphicon glyphicon-remove"></span> Close Note </a></li>
+	<li><a href="{% url 'encounter_assessment_detail' current_encounter_id current_assessment_id %}"><span class="glyphicon glyphicon-arrow-left"></span> Back To Current Assessment </a></li>
+	<li><a href="{% url 'new_treatment_task' current_encounter_id current_assessment_id note.id %}"><span class="glyphicon glyphicon-plus"></span> New Task </a></li>
+{% else %}
+	<li><a href="{% url 'edit_encounter_note' current_encounter_id note.id%}"><span class="glyphicon glyphicon-pencil"></span> Edit Note </a></li>
+	<li><a href="{% url 'close_encounter_treatment' current_encounter_id note.id%}"><span class="glyphicon glyphicon-remove"></span> Close Note </a></li>
+	<li><a href="{% url 'encounter_detail' current_encounter_id %}"><span class="glyphicon glyphicon-arrow-left"></span> Back To Current Encounter </a> </li>
+	<li><a href="{% url 'new_encounter_treatment_task' current_encounter_id note.id %}"><span class="glyphicon glyphicon-plus"></span> New Task</a></li>
+{% endif %}
+{% endblock %}

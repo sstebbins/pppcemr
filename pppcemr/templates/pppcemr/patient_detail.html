@@ -1,0 +1,64 @@
+{% extends "pppcemr/base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h2> {{ patient }} </h2>
+  <h2><small> {{ patient.birthdate | timesince }} old</small></h2>
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">
+			<a data-toggle="collapse" href="#Encounters">Show Encounters:<span class="glyphicon glyphicon-chevron-down pull-right"></span></a>
+		</h2>
+	</div>
+	<div id="Encounters" class="panel-collapse collapse">
+		<div class="panel-body">
+		{% for encounter in patient.encounter_set.all %}
+		{% if forloop.first %}
+			<ul class="list-group">
+		{% endif %}
+		<li class="list-group-item"><h4><a href="{% url 'encounter_detail' encounter.id %}" class="label label-primary" style="background-color:{{encounter.encounter_owner.employee.color}} !important;">{{ encounter }} ({{encounter.encounter_owner}})</small></a></h4>
+		{% if forloop.last %}
+			</ul>
+		{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+</div>
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">
+			<a data-toggle="collapse" href="#Assessments">Show Assessments:<span class="glyphicon glyphicon-chevron-down pull-right"></span></a>
+		</h2>
+	</div>
+	<div id="Assessments" class="panel-collapse collapse">
+		<div class="panel-body">
+		{% for assessment in patient.assessment_set.all %}
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ assessment }}</h3>
+				</div>
+				{% for object in assessment.treatment_set.all %}
+				{% if forloop.first %}
+				<ul class="list-group">
+					{% endif %}
+					<li class="list-group-item">{{ object }}</li>
+					{% if forloop.last %}
+				</ul>
+				{% endif %}
+				{% endfor %}
+			</div>
+		{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block admin %}
+{{ block.super }}
+<li><a href="{% url 'patient_growthchart_weight' patient.id %}"><span class="glyphicon glyphicon-stats"></span> Growth Charts</a></li>
+{% endblock %}

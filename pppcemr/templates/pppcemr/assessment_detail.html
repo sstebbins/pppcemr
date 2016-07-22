@@ -1,0 +1,121 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+
+{% if current_encounter.patient.pk = assessment.patient.pk %}
+<ol class="breadcrumb">
+	<li><a href="{% url 'encounter_detail' current_encounter.id %}">{{current_encounter}}</a></li>
+	<li class="active"><a href="#">{{ assessment.diagnosis | truncatewords:5}}</a></li>
+</ol>
+{% for object in assessment.patient.get_all_open_allergies.all %}
+	{% if forloop.first %}
+		<div class="alert alert-danger">
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<strong>Allergies:</strong>
+	{% endif %}
+			<a href="{% url 'encounter_treatment_detail' current_encounter.id object.id %}"><span class="label label-danger">{{ object.description }}</span></a>
+	{% if forloop.last %}
+		</div>
+	{% endif %}
+	{% empty %}
+		<div class="alert alert-success">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<strong>NKDA</strong>
+		</div>
+{% endfor %}
+
+<div class="page-header">
+	<h2>{{ assessment.diagnosis.description }} </h2>
+</div>
+<h5><span class="label label-success">ICD-10: {{assessment.diagnosis.icd_code}}</span></h5>
+<h5><span class="label label-primary">Snomed: {{assessment.snomed}}</span> <button type="button" class="btn btn-default btn-xs"><a href="{% url 'change_snomed' current_encounter_id assessment.id %}"><span class="glyphicon glyphicon-edit"></span> Change Snomed</a></button></h5>
+
+<div class="well">
+Current Encounter = <a href="{% url 'encounter_detail' current_encounter.id %}"> {{current_encounter}} </a></br>
+Patient for Current Encounter = {{current_encounter.patient}}</br>
+Patient for Assessment: {{assessment.patient}}</br>
+Date: {{ assessment.assessment_date }}</br>
+Assessment open: {{ assessment.is_open }} </br>
+</div>
+
+
+
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">Open Treatments:</h2>
+	</div>
+	<div class="panel-body">
+	{% for object in assessment.treatment_set.all %}
+		{% if forloop.first %}
+  			<ul class="list-group">
+  		{% endif %}
+		{% if object.is_open %}
+			<li class="list-group-item">
+				<span {% if current_encounter_id|floatformat == object.encounter.pk|floatformat %} style="font-weight: bold; font-style: italic;" {% endif %} >
+				<a href="{% url 'treatment_detail' current_encounter_id assessment.id object.id %}">{{ object }}</a>
+				<a href="{% url 'close_treatment' current_encounter_id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button">
+					<span class="glyphicon glyphicon-remove"></span>
+				</a>
+				</span>
+			</li>
+		{% endif %}
+		{% if forloop.last %}
+  			</ul>
+		{% endif %}
+	{% endfor %}
+	</div>
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">
+			<a data-toggle="collapse" href="#ClosedTreatments">Show Closed Treatments:<span class="glyphicon glyphicon-chevron-down pull-right"></span></a>
+		</h2>
+	</div>
+	<div id="ClosedTreatments" class="panel-collapse collapse">
+		<div class="panel-body">
+		{% for object in assessment.treatment_set.all %}
+		{% if forloop.first %}
+  			<ul class="list-group">
+  		{% endif %}
+		{% if not object.is_open %}
+			<li class="list-group-item"><span {% if current_encounter_id|floatformat == object.encounter.id|floatformat %} style="font-weight: bold; font-style: italic;" {% endif %} ><a href="{% url 'treatment_detail' current_encounter_id assessment.id object.id %}">{{ object }} </a><a href="{% url 'reopen_treatment' current_encounter_id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-repeat"></span></a></span></li>
+		{% endif %}
+		{% if forloop.last %}
+  			</ul>
+		{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+  <span class="sr-only">Error:</span>
+  You are attempting to access an assessment that belongs to a different patient. This is usually caused by someone manually editing the page URL. Press the "back" button on your browser and try again.
+</div>
+{% endif %}
+{% endblock %}
+{% block admin %}
+{{ block.super }}
+{% if current_encounter.patient.pk = assessment.patient.pk %}
+<li class="dropdown">
+	<a class="dropdown-toggle" data-toggle="dropdown" href="#"> <span class="glyphicon glyphicon-chevron-down"></span> Add Treatment </a></a>
+	<ul class="dropdown-menu">
+	<li><a href="{% url 'new_treatment' current_encounter_id assessment.id %}"><span class="glyphicon glyphicon-search"></span> Search </a></li>
+	{% for object in assessment.diagnosis.treatment_set.all %}
+		<li>
+			<a href="{% url 'add_treatment' current_encounter_id assessment.id object.pk %}">{{ object }}</a>
+		</li>
+	{% endfor %}
+    </ul>
+</li>
+<li><a href="{% url 'close_assessment' current_encounter_id assessment.id %}"><span class="glyphicon glyphicon-remove"></span> Close Assessment</a></li>
+<li><a href="{% url 'send_assessment_message' current_encounter_id assessment.id %}"><span class="glyphicon glyphicon-envelope"></span> Send Message</a></li>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,291 @@
+{% extends "pppcemr/base.html" %}
+
+
+{% block content %}
+{% if encounter.is_open %}
+<ol class="breadcrumb">
+	<li><a href="{% url 'office_detail' encounter.room.office.id %}">{{ encounter.room.office }}</a></li>
+	<li><a href="{% url 'room_detail' encounter.room.id %}">{{ encounter.room }}</a></li>
+	<li class="active"><a href="#">{{ encounter.patient }}</a></li>
+</ol>
+
+
+
+<div class="page-header">
+  <h2> {{ encounter.patient }} </h2>
+  <h2><small> {{ encounter.patient.birthdate | timesince }} old</small></h2>
+</div>
+{{encounter.patient.get_last_weight_and_percentile}},
+{{encounter.patient.get_last_height_and_percentile}},
+{{encounter.patient.get_last_bmi_and_percentile}}
+<div class="well">
+Encounter Provider: {{ encounter.encounter_owner }}</br>
+Encounter Type: {{ encounter.encounter_type }}</br>
+Encounter Date: {{ encounter.encounter_date }}</br>
+Encounter Open: {{ encounter.is_open }}</br>
+Absolute URL: {{ encounter.get_absolute_url }}</br>
+Workplan: {{encounter.workplan}}</br>
+Billing level: {{encounter.EM_level}}
+</div>
+
+
+{% for object in encounter.patient.get_all_open_allergies.all %}
+	{% if forloop.first %}
+		<div class="alert alert-danger">
+			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+			<strong>Allergies:</strong>
+	{% endif %}
+			<a href="{% url 'encounter_treatment_detail' encounter.id object.id %}"><span class="label label-danger">{{ object.description }}</span></a>
+	{% if forloop.last %}
+		</div>
+	{% endif %}
+	{% empty %}
+		<div class="alert alert-success">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<strong>NKDA</strong>
+		</div>
+{% endfor %}
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title" id="medications">Open Medications:</h2>
+	</div>
+{% for object in encounter.patient.get_all_open_medications.all %}
+	{% if forloop.first %}
+  		<ul class="list-group">
+  	{% endif %}
+		<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"  ><a href="{% url 'encounter_treatment_detail' encounter.id object.id %}">{{ object | truncatewords:10}}</a><a href="{% url 'close_encounter_treatment' encounter.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+	{% if forloop.last %}
+  		</ul>
+	{% endif %}
+{% endfor %}
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h2 class = "panel-title" id="PMFSH">PMFSH</h2>
+	</div>
+	<div class="list-group">
+		<a href="{% url 'edit_PMFSH' encounter.id %}" class="list-group-item">Birth History: {{encounter.patient.birth_history}}</a>
+		<a href="{% url 'edit_PMFSH' encounter.id %}" class="list-group-item">Medical History: {{encounter.patient.past_medical_history}}</a>
+		<a href="{% url 'edit_PMFSH' encounter.id %}" class="list-group-item">Family History: {{encounter.patient.family_history}}</a>
+		<a href="{% url 'edit_PMFSH' encounter.id %}" class="list-group-item">Social History: {{encounter.patient.social_history}}</a>
+	</div>
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title" id="tasks">Encounter Tasks:</h2>
+	</div>
+{% for task in encounter.task_set.all %}
+	{% if forloop.first %}
+  		<ul class="list-group">
+  	{% endif %}
+	{% if task.is_open %}
+		{% if task.treatment %}
+			{% if task.treatment.assessment %}
+				<li class="list-group-item"><span><a href="{% url 'edit_treatment' task.treatment.encounter.id task.treatment.assessment.id task.treatment.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{ task | truncatewords:10 }} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a><a href="{% url 'close_task' task.id%}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+			{% else %}
+				<li class="list-group-item"><span><a href="{% url 'edit_encounter_treatment' task.treatment.encounter.id task.treatment.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{ task | truncatewords:10 }} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a><a href="{% url 'close_task' task.id%}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+			{% endif %}
+		{% else %}
+			<li class="list-group-item"><span><a href="{% url 'task_detail' task.id %}" class="label label-primary" style="background-color:{{task.color}} !important;">{{ task | truncatewords:10 }} ({% if task.owner %}{{task.owner}}{% else %}{{task.owner_group}}{% endif %})</a><a href="{% url 'close_task' task.id%}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+		{% endif %}
+	{% endif %}
+	{% if forloop.last %}
+  		</ul>
+	{% endif %}
+{% endfor %}
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title" id="encounter_treatments">Encounter Treatments:</h2>
+	</div>
+{% for object in encounter.treatment_set.all %}
+	{% if forloop.first %}
+  		<ul class="list-group">
+  	{% endif %}
+	{% if object.has_no_assessment %}
+		<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"  ><a href="{% url 'encounter_treatment_detail' encounter.id object.id %}">{{ object | truncatewords:10 }}</a></span><a href="{% url 'close_encounter_treatment' encounter.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></li>
+	{% endif %}
+	{% if forloop.last %}
+  		</ul>
+	{% endif %}
+{% endfor %}
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title" id="encounter_assessments">Current Encounter Assessments:</h2>
+	</div>
+	<div class="panel-body">
+	{% for assessment in encounter.assessment_set.all %}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title" id="a{{assessment.id}}"><span style="font-weight: bold; font-style: italic;" ><a href="{% url 'encounter_assessment_detail' encounter.id assessment.id %}">{{ assessment | truncatewords:10}}</a> <a href="{% url 'close_assessment' encounter.id assessment.id %}" class="btn btn-danger btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></h3>
+			</div>
+			{% for object in assessment.treatment_set.all %}
+				{% if object.is_open %}
+					{% if forloop.first %}
+  						<ul class="list-group">
+  					{% endif %}
+						{% if object in encounter.treatment_set.all %}
+							<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object | truncatewords:10 }}</a><a href="{% url 'close_treatment' encounter.id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+						{% elif object in prior_treatments %}
+							<li class="list-group-item"><span><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object | truncatewords:10 }}</a><a href="{% url 'close_treatment' encounter.id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+						{% endif %}
+					{% if forloop.last %}
+  						</ul>
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endfor %}
+	</div>
+</div>
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">Previous Open Assessments:</h2>
+	</div>
+	<div class="panel-body">
+	{% for assessment in encounter.get_previous_open_assessments %}
+		{% if assessment.is_open %}
+			{% if assessment not in encounter.assessment_set.all %}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title" id="a{{assessment.id}}"><span><a href="{% url 'encounter_assessment_detail' encounter.id assessment.id %}">{{ assessment | truncatewords:10}}</a> <a href="{% url 'close_assessment' encounter.id assessment.id %}" class="btn btn-danger btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></h3>
+					</div>
+					{% for object in assessment.treatment_set.all %}
+						{% if object.is_open %}
+							{% if forloop.first %}
+  								<ul class="list-group">
+  							{% endif %}
+							{% if object in encounter.treatment_set.all %}
+								<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object | truncatewords:10 }}</a><a href="{% url 'close_treatment' encounter.id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+							{% elif object in prior_treatments %}
+								<li class="list-group-item"><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object | truncatewords:10 }}</a><a href="{% url 'close_treatment' encounter.id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></li>
+							{% endif %}
+							{% if forloop.last %}
+  							</ul>
+							{% endif %}
+						{% endif %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+	</div>
+</div>
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">
+			<a data-toggle="collapse" href="#ClosedAssessments">Show Closed Assessments:<span class="glyphicon glyphicon-chevron-down pull-right"></span></a>
+		</h2>
+	</div>
+	<div id="ClosedAssessments" class="panel-collapse collapse">
+		<div class="panel-body">
+		{% for assessment in encounter.get_previous_closed_assessments %}
+			{% if not assessment.is_open %}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title" id="a{{assessment.id}}"><span {% if assessment in encounter.assessment_set.all %} style="font-weight: bold; font-style: italic;" {% endif %} ><a href="{% url 'encounter_assessment_detail' encounter.id assessment.id %}">{{ assessment }}</a></h3>
+					</div>
+					{% for object in assessment.treatment_set.all %}
+						{% if forloop.first %}
+  							<ul class="list-group">
+  						{% endif %}
+							<li class="list-group-item"><span {% if object in encounter.treatment_set.all %} style="font-weight: bold; font-style: italic;" {% endif %} ><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object }}</a><a href="{% url 'close_treatment' encounter.id assessment.id object.id %}" class="btn btn-default btn-xs pull-right" role="button"><span class="glyphicon glyphicon-remove"></span></a></span></li>
+						{% if forloop.last %}
+  							</ul>
+						{% endif %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+</div>
+{% else %}
+
+<div class="alert alert-info"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> This encounter is closed.</div>
+
+<div class="page-header">
+  <h2> {{ encounter.patient }} </h2>
+</div>
+<div class="well">
+Encounter Provider: {{ encounter.encounter_owner }}</br>
+Encounter Type: {{ encounter.encounter_type }}</br>
+Encounter Date: {{ encounter.encounter_date }}</br>
+</div>
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">Encounter Treatments:</h2>
+	</div>
+{% for object in encounter.treatment_set.all %}
+	{% if forloop.first %}
+  		<ul class="list-group">
+  	{% endif %}
+	{% if object.has_no_assessment %}
+		<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"  ><a href="{% url 'encounter_treatment_detail' encounter.id object.id %}">{{ object }}</a></li>
+	{% endif %}
+	{% if forloop.last %}
+  		</ul>
+	{% endif %}
+{% endfor %}
+</div>
+
+
+<div class="panel panel-default">
+  	<div class="panel-heading">
+		<h2 class="panel-title">Encounter Assessments:</h2>
+	</div>
+	<div class="panel-body">
+	{% for assessment in encounter.assessment_set.all %}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><span style="font-weight: bold; font-style: italic;" ><a href="{% url 'encounter_assessment_detail' encounter.id assessment.id %}">{{ assessment }}</a> </h3>
+			</div>
+			{% for object in assessment.treatment_set.all %}
+				{% if object in encounter.treatment_set.all %}
+					{% if forloop.first %}
+  						<ul class="list-group">
+  					{% endif %}
+						<li class="list-group-item"><span style="font-weight: bold; font-style: italic;"><a href="{% url 'treatment_detail' encounter.id assessment.id object.id %}">{{ object }}</a></li>
+					{% if forloop.last %}
+  						</ul>
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endfor %}
+	</div>
+</div>
+
+
+{% endif %}
+{% endblock %}
+
+{% block admin %}
+{{ block.super }}
+<li><a href="{% url 'patient_growthchart_weight' encounter.patient.id %}"><span class="glyphicon glyphicon-stats"></span> Growth Charts</a></li>
+<li><a href="{% url 'patient_vaccines' encounter.patient.id %}"><span class="glyphicon glyphicon-list-alt"></span> Vaccines</a></li>
+{% if encounter.is_open %}
+<li><a href="{% url 'add_workplan' encounter.id %}"><span class="glyphicon glyphicon-plus"></span> Add Workplan</a></li>
+<li><a href="{% url 'new_encounter_treatment' encounter.id %}"><span class="glyphicon glyphicon-plus"></span> Add Treatment </a></li>
+<li><a href="{% url 'new_encounter_task' encounter.id %}"><span class="glyphicon glyphicon-plus"></span> Add Task </a></li>
+<li><a href="{% url 'new_assessment' encounter.id %}"><span class="glyphicon glyphicon-plus"></span> Add Assessment</a></li>
+<li><a href="{% url 'edit_encounter' encounter.id %}"><span class="glyphicon glyphicon-pencil"></span> Edit Encounter</a></li>
+<li><a href="{% url 'review_encounter' encounter.id %}"><span class="glyphicon glyphicon-remove"></span> Close Encounter</a></li>
+{% else %}
+<li><a href="{% url 'reopen_encounter' encounter.id %}"><span class="glyphicon glyphicon-repeat"></span> Open Closed Encounter</a></li>
+{% endif %}
+<li><a href="{% url 'choose_encounter_report' encounter.id %}" target=_blank><span class="glyphicon glyphicon-list-alt"></span> Choose report</a></li>
+<li><a href="{% url 'send_encounter_message' encounter.id %}"><span class="glyphicon glyphicon-envelope"></span> Send Message</a></li>
+{% endblock %}
