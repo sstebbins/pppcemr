@@ -1,5 +1,5 @@
 # PPPCPro
-Web port of EncounterPro OS open source EHR
+This is a python web app port of [EncounterPro OS open source EHR created by Mark Copenhaver](http://encounterpro.org/).  No source code from this original project was used.
 
 # Installation
 
