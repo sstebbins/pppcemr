@@ -7,7 +7,7 @@ Please forgive the amateur quality of this code - I used this as a learning proj
 
 # Installation
 
-Install [python 3.5](https://www.python.org/downloads/release/python-350/) and [Django](https://www.djangoproject.com/download/). 
+Install [python 3.5](https://www.python.org/downloads/) and [Django](https://www.djangoproject.com/download/). 
 
 To familiarize yourself with Django, I highly recommend going through the [tutorial](https://docs.djangoproject.com/en/1.9/).
 
