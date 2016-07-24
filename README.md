@@ -20,3 +20,6 @@ or, if you have both python 2.7 and 3.5 on your computer:
 python3 manage.py runserver
 ```
 
+#Admin credentials 
+Username: admin
+Password: password
