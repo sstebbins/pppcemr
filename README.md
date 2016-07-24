@@ -22,4 +22,5 @@ python3 manage.py runserver
 
 #Admin credentials 
 Username: admin
+
 Password: password
